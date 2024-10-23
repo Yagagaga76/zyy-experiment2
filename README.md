@@ -84,3 +84,6 @@
 ```
 <img width="637" alt="c67fd7f9aa091c36270ea6b845eae3d" src="https://github.com/user-attachments/assets/f5a47100-c592-4e7e-a1f4-a1b35053e93b">
 <img width="1280" alt="deedd037c59d6f52a0d8b1c352c92a2" src="https://github.com/user-attachments/assets/473b0e86-c8ce-4a0c-a603-79a0721df518">
+
+### 可以改进之处
+在问题四的设计之中 我只划分了三个区间，及 `0-3%`、`3-5%`、`5%以上`，通过运算结果可以看出，整体的利率变化频率很小，一般连续10天左右都在同一个利率区间，并且5%以上的利率较少，不利于观察用户申购和赎回的影响，可以考虑进一步细化区间或者尝试别的方案。
