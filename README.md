@@ -52,38 +52,34 @@
 - 在`cleanup`方法中，将排序后的用户ID和对应的活跃天数输出，从而得到按活跃天数排序的用户列表。
 <img width="637" alt="03e2a042e2be6dd20995700816a9da4" src="https://github.com/user-attachments/assets/110c6a61-b628-4119-85f4-64195bafb35b">
 
-#### InterestImpactAnalyst
+#### FinancialAnalyst
 
-研究**银行间利率对用户申购和赎回行为的影响**，假设利率较高时，用户可能更倾向于赎回资金而非进行余额宝申购，因为较高的利率会促使用户将资金投入更高收益的投资方式。
+分析银行利率与用户申购/赎回行为的关系，并结合用户的总余额数据（即tBalance字段），来看是否高利率的日子会影响用户的总余额和交易行为。
 
-- 具体分析：
+- 使用`user_balance_table`和`mfd_bank_shibor`两个数据源，前者提供用户的交易和余额信息，后者提供日常的银行间拆借利率。
+- 两个Mapper类
+  - **`BalanceMapper`**：处理`user_balance_table`，提取关键字段如日期、总余额、申购量和赎回量，并以日期为key输出。
+  - **`ShiborMapper`**：处理`mfd_bank_shibor`表，关注一周利率（`Interest_1_W`），以日期为key，输出利率信息。
 
-使用 `mfd_bank_shibor` 表中的一周利率 (`Interest_1_W`) 和 `user_balance_table` 表中的总申购 (`total_purchase_amt`) 与总赎回 (`total_redeem_amt`) 数据进行分析，通过将不同的利率分为区间来计算这些区间下的资金流入和流出情况，从而观察利率变化对用户申购和赎回的影响。
-
-- 设计思路：
-
-1. **Mapper**：
-   - 输入 `user_balance_table` 数据和 `mfd_bank_shibor` 数据，根据日期进行匹配。
-   - 将一周利率划分为区间，如 `0-3%`、`3-5%`、`5%以上`。
-
-2. **Reducer**：
-   - 对于每个利率区间，统计所有的申购和赎回总量。
-   - 计算每个日期的平均申购和赎回金额，并输出。
-
-- 输出内容为：
+- `AnalysisReducer`
+  - Reducer接收来自两个Mapper的输出。由于都以日期为key，因此每个Reducer任务接收到的是同一日期的用户余额和利率数据。
+  - 根据接收到的一周利率，将其分类到不同的利率区间。
+  - 对于同一天内的数据，计算总余额、总申购量和总赎回量。
+  - 最终输出包括日期、利率区间和对应的交易总额，使得输出数据既包含时间信息也反映了不同利率对用户行为的影响。
 
 ```
-<利率区间> <日期> <平均申购量>,<平均赎回量>
-例如：
-0-3% 20130910	Purchase: 94684143, Redeem: 37128363
-3-5% 20130911	Purchase: 98944459, Redeem: 71674082
-0-3% 20130912	Purchase: 68573684, Redeem: 45147220
-0-3% 20130913	Purchase: 71655946, Redeem: 60512675
-3-5% 20130916	Purchase: 161656210, Redeem: 45184589
-3-5% 20130917	Purchase: 76204815, Redeem: 58260798
+输出示例：
+20140820	Range: 3-5%, Total Balance: 20233180538, Total Purchase: 308378692, Total Redeem: 202452782
+20140821	Range: 3-5%, Total Balance: 20339106448, Total Purchase: 251763517, Total Redeem: 219963356
+20140822	Range: 3-5%, Total Balance: 20370906609, Total Purchase: 246316056, Total Redeem: 179349206
+20140825	Range: 3-5%, Total Balance: 20319023288, Total Purchase: 309574223, Total Redeem: 312413411
+20140826	Range: 3-5%, Total Balance: 20316184100, Total Purchase: 306945089, Total Redeem: 285478563
+20140827	Range: 3-5%, Total Balance: 20337650626, Total Purchase: 302194801, Total Redeem: 468164147
+20140828	Range: 3-5%, Total Balance: 20171681280, Total Purchase: 245082751, Total Redeem: 297893861
+20140829	Range: 3-5%, Total Balance: 20118870170, Total Purchase: 267554713, Total Redeem: 273756380
+
 ```
-<img width="637" alt="c67fd7f9aa091c36270ea6b845eae3d" src="https://github.com/user-attachments/assets/f5a47100-c592-4e7e-a1f4-a1b35053e93b">
-<img width="1280" alt="deedd037c59d6f52a0d8b1c352c92a2" src="https://github.com/user-attachments/assets/473b0e86-c8ce-4a0c-a603-79a0721df518">
+<img width="637" alt="390d7f2b11765d080611db2a8e81bdc" src="https://github.com/user-attachments/assets/ca674178-5b26-40d9-b498-a469f933fe4c">
 
 ### 可以改进之处
 在问题四的设计之中 我只划分了三个区间，及 `0-3%`、`3-5%`、`5%以上`，通过运算结果可以看出，整体的利率变化频率很小，一般连续10天左右都在同一个利率区间，并且5%以上的利率较少，不利于观察用户申购和赎回的影响，可以考虑进一步细化区间或者尝试别的方案。
