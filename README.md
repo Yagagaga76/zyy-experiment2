@@ -1,7 +1,7 @@
 # zyy-experiment2
-### 设计思路
+## 设计思路
 
-#### DailyFundFlow
+### DailyFundFlow
 
  **TokenizerMapper 类**
 
@@ -14,7 +14,7 @@
 - 输出的键是日期，值是该日期的总购买金额和总赎回金额。
 <img width="637" alt="fcb5aca2b1356b96eee763f674044d4" src="https://github.com/user-attachments/assets/c703b5ea-b89b-4b36-8b07-f0d457b2e362">
 
-#### WeeklyTrancationVolume
+### WeeklyTrancationVolume
 
 计算每个星期几的平均购买和赎回金额，并按购买金额从高到低排序输出。
 
@@ -36,7 +36,7 @@
 在`cleanup`阶段，Reducer将排序后的结果输出，确保结果是按照平均购买金额从高到低排列的。
 <img width="637" alt="a0b1f8db8b6fbbce515be14113a5230" src="https://github.com/user-attachments/assets/86f2c5cf-35ef-41d3-828b-ba85d745ca2e">
 
-#### UserActivityAnalysis
+### UserActivityAnalysis
 
 分析用户的活跃度，通过计算每个用户的交易次数（无论是购买还是赎回）来进行。
 
